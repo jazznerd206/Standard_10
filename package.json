@@ -1,0 +1,19 @@
+{
+  "name": "standard_10",
+  "version": "1.0.0",
+  "description": "Based on the Remington Standard #10 typewriter.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jazznerd206/Standard_10.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jazznerd206/Standard_10/issues"
+  },
+  "homepage": "https://github.com/jazznerd206/Standard_10#readme"
+}
