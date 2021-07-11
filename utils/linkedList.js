@@ -110,11 +110,11 @@ class LinkedList {
         this.length++;
         return true;
     }
-    remove(position, val) {
-        let newNode = new Node(val);
+    remove(position) {
+        // let newNode = new Node(val);
         if (position < 0 || position > this.length) return undefined;
-        if (position === this.length - 1) return !!this.pop(newNode)
-        else if (position === 0) return !!this.shift(newNode)
+        if (position === this.length - 1) return !!this.pop()
+        else if (position === 0) return !!this.shift()
         let prev = this.get(position - 1)
         let removed = prev.next;
         prev.next = removed.next
