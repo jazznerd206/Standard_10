@@ -9,7 +9,6 @@ class Standard_10 {
         chars: null,
         active: false,
         paused: false,
-        stopped: true,
         cursorBlink: true,
         cursorState: 0,
         queue: null,
@@ -54,6 +53,28 @@ class Standard_10 {
                 ...options
             }
             this.state.initialOptions = { ...options };
+            const _TYPE = typeof this.options.content;
+            const _TARGET = this.options.content;
+            const isString = str => typeof str === 'string';
+            switch(_TYPE) {
+                case 'string':
+                    this.state.strings.push(_TARGET);
+                    break;
+                case 'object':
+                    if (Array.isArray(_TARGET) && _TARGET.every(isString)) {
+                        _TARGET.forEach(string => {
+                            this.state.strings.push(string);
+                        })
+                        break;
+                    } else {
+                        this.showError('Content prop must be string or array of strings');
+                        return;
+                    }
+                default:
+                    this.showError('Content prop must be string or array of strings')
+                    break;
+                
+            }
         }
         this.createField();
     }
@@ -69,6 +90,11 @@ class Standard_10 {
         cursor.innerHTML = this.options.cursorChar;
         textArea.append(cursor);
         domField.append(textArea);
+    }
+    startAnimation() {
+        this.state.active = true;
+
+        return this;
     }
     parseText(input) {
         if (typeof input !== 'string') {
@@ -131,8 +157,7 @@ class Standard_10 {
     }
     showError(string) {
         this.state.error = string;
-        console.log(this.state.error);
-        return;
+        throw new Error(this.state.error);
     }
 }
 
