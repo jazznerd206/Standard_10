@@ -1,7 +1,6 @@
 {
   "name": "standard_10",
   "version": "1.0.0",
-  "type": "module",
   "description": "Based on the Remington Standard #10 typewriter.",
   "main": "src/core/index.js",
   "scripts": {

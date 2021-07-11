@@ -5,13 +5,16 @@ class Standard_10 {
 
     state = {
         strings: [],
+        tempo: [],
+        queue: [],
+        domNodes: [],
         map: null,
         chars: null,
         active: false,
         paused: false,
         cursorBlink: true,
         cursorState: 0,
-        queue: null,
+        events: null,
         initialState: null,
         initialOptions: null,
         element: {
@@ -53,28 +56,6 @@ class Standard_10 {
                 ...options
             }
             this.state.initialOptions = { ...options };
-            const _TYPE = typeof this.options.content;
-            const _TARGET = this.options.content;
-            const isString = str => typeof str === 'string';
-            switch(_TYPE) {
-                case 'string':
-                    this.state.strings.push(_TARGET);
-                    break;
-                case 'object':
-                    if (Array.isArray(_TARGET) && _TARGET.every(isString)) {
-                        _TARGET.forEach(string => {
-                            this.state.strings.push(string);
-                        })
-                        break;
-                    } else {
-                        this.showError('Content prop must be string or array of strings');
-                        return;
-                    }
-                default:
-                    this.showError('Content prop must be string or array of strings')
-                    break;
-                
-            }
         }
         this.createField();
     }
@@ -86,45 +67,134 @@ class Standard_10 {
         let domField = this.state.element.fragment;
         let textArea = this.state.element.node;
         let cursor = this.state.element.cursor;
-        textArea.innerHTML = this.state.strings[0] || '';
+        textArea.innerHTML = '';
         cursor.innerHTML = this.options.cursorChar;
         textArea.append(cursor);
         domField.append(textArea);
     }
     startAnimation() {
+        this.state.queue = this.getPrintTempo();
         this.state.active = true;
-
+        this.run();
         return this;
     }
-    parseText(input) {
-        if (typeof input !== 'string') {
-            this.showError('This function only accepts strings.');
+    run() {
+        if (this.state.queue.length === 0) {
+            this.showError('No events queued');
+            this.kill();
             return;
         }
-        for (let char of input) {
-            this.chars.push(char);
+        if (!this.state.lastFrame) this.state.lastFrame = Date.now();
+        let thisFrame = Date.now();
+        let _DIFF = thisFrame - this.state.lastFrame;  
+        this.state.events = window.requestAnimationFrame(this.run.bind(this));
+        const eClone = [...this.state.queue]
+        let c = eClone.shift();
+        let type = c[2];
+        let delay = c[1] === true ? 50 : 100;
+        if (_DIFF <= delay) return;
+        switch(type) {
+            case 'ADD_AT_TAIL':
+                let char = c[0];
+                let speed = c[1];
+                const newNode = document.createElement('span');
+                newNode.textContent = char;
+                newNode.classList.add('dyn-node');
+                newNode.setAttribute('id', `dyn-${this.state.events}`);
+                if (newNode) {
+                    this.state.element.node.append(newNode);
+                    this.state.domNodes.push(newNode);
+                }
+                break;
+            case 'REMOVE_LAST':
+                const d = this.state.domNodes;
+                // this.state.queue.unshift([char, speed, type]);
+                const _NODE = d[d.length - 1];
+                const _E = document.getElementById(`${_NODE.id}`);
+                console.log(`_E`, _E);
+                if (_E.parentNode) {
+                    console.log(`_E.parentNode`, _E.parentNode);
+                    _E.parentNode.removeChild(_E);
+                }
+                d.splice(-1,1);
+                break;
+            default:
+                this.kill();
+                break;
         }
+        this.state.queue = eClone;
+        this.state.lastFrame = thisFrame;
+    }
+    /**
+     * end event loop
+     * @returns this
+     */
+    kill() {
+        if(this.state.events) {
+            window.cancelAnimationFrame.bind(this);
+            this.state.events = null;
+        }
+        return this;
+    }
+    /**
+     * takes content from state.strings
+     * requires funcs s10.add AND s10.addBackspace to be in state
+     */
+    parseText() {
+        if (this.state.strings.length === 0) {
+            this.showError('Content property is empty')
+        }
+        this.state.strings.forEach(string => {
+            if (string === 'backspace') this.chars.push('_D');
+            else {
+                for (let char of string) {
+                    this.chars.push(char);
+                }
+            }
+        })
+    }
+    /**
+     * add full string to state.strings
+     * @param {single string to add} string 
+     */
+    add(string) {
+        this.state.strings.push(string);
+        return this;
+    }
+    /**
+     * add 'backspace' to state.strings
+     * @param {num of chars to delete} num 
+     */
+    addBackspace(num) {
+        for (let i = 0; i < num; i++) {
+            this.state.strings.push('backspace');
+        }
+        return this;
     }
     queryMap(character, next) {
         let neighbors = this.map[character];
+        if (character === '_D') {
+            let speedQuery = [null, true, 'REMOVE_LAST'];
+            return speedQuery;
+        }
         if (neighbors.includes(next)) {
-            let speedQuery = [character, true];
+            let speedQuery = [character, true, 'ADD_AT_TAIL'];
             return speedQuery;
         } else {
-            let speedQuery = [character, false];
+            let speedQuery = [character, false, 'ADD_AT_TAIL'];
             return speedQuery;
         }
     }
     getPrintTempo() {
         let node = this.chars.head;
-        let tempo = [];
         while (node.next !== null) {
-            tempo.push(this.queryMap(node.val, node.next.val));
+            const value = node.val;
+            this.state.tempo.push(this.queryMap(node.val, node.next.val));
             node = node.next;
         }
         let last = [ this.chars.tail.val, false ];
-        tempo.push(last);
-        return tempo;
+        this.state.tempo.push(last);
+        return this.state.tempo;
     }
     toString() {
         let tempo = this.getPrintTempo();
