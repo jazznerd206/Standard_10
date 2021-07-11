@@ -1,8 +1,9 @@
 {
   "name": "standard_10",
   "version": "1.0.0",
+  "type": "module",
   "description": "Based on the Remington Standard #10 typewriter.",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
