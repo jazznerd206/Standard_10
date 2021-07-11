@@ -69,8 +69,8 @@ class Standard_10 {
         let cursor = this.state.element.cursor;
         textArea.innerHTML = '';
         cursor.innerHTML = this.options.cursorChar;
-        textArea.append(cursor);
         domField.append(textArea);
+        domField.append(cursor);
     }
     startAnimation() {
         this.state.queue = this.getPrintTempo();
@@ -80,7 +80,6 @@ class Standard_10 {
     }
     run() {
         if (this.state.queue.length === 0) {
-            this.showError('No events queued');
             this.kill();
             return;
         }
