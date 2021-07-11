@@ -12,5 +12,8 @@ body {
   align-items: center;
   font-size: 5em;
   background-color: black;
+}
+
+.App .title {
   color: chartreuse;
 }

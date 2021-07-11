@@ -27,6 +27,7 @@ class Standard_10 {
     options = {
         content: null,
         cursorChar: '_',
+        cursorBlink: 'standard',
         typeSpeed: 'standard',
         deleteSpeed: 'standard',
         reType: false,
@@ -36,15 +37,13 @@ class Standard_10 {
     constructor(target, options) {
         this.map = proximityMap;
         this.chars = new LinkedList();
-        if (target == null || undefined) {
-            this.state.error = 'Must supply a target node';
-            this.showError();
+        if (target == null) {
+            this.showError('Must supply a target node');
             return;
         }
         const lookieLoo = document.querySelector(`#${target.id}`);
         if (!lookieLoo) {
-            this.state.error = 'Target element not found on page.';
-            this.showError()
+            this.showError('Target element not found on page.')
             return;
         } else {
             this.state.element.fragment = lookieLoo;
@@ -56,13 +55,24 @@ class Standard_10 {
             }
             this.state.initialOptions = { ...options };
         }
-        console.log(`this.state`, this.state);
-        
+        this.createField();
+    }
+    createField() {
+        if (!this.state.element.fragment) {
+            this.showError('Lost the DOM element.');
+            return;
+        }
+        let domField = this.state.element.fragment;
+        let textArea = this.state.element.node;
+        let cursor = this.state.element.cursor;
+        textArea.innerHTML = this.state.strings[0] || '';
+        cursor.innerHTML = this.options.cursorChar;
+        textArea.append(cursor);
+        domField.append(textArea);
     }
     parseText(input) {
         if (typeof input !== 'string') {
-            const message = 'This function only accepts strings.';
-            this.showError();
+            this.showError('This function only accepts strings.');
             return;
         }
         for (let char of input) {
@@ -119,9 +129,9 @@ class Standard_10 {
     deleteCharAt(index) {
         return this.chars.remove(index);
     }
-    showError() {
-        let err = this.state.error;
-        if (err !== null) console.log(err);
+    showError(string) {
+        this.state.error = string;
+        console.log(this.state.error);
         return;
     }
 }
