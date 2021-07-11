@@ -7,7 +7,7 @@ This package is built with JavaScript and React components. There are zero depen
 
 <br>
 
-The goal of this package is to provide react components which will 'type' text across the screen with various property variables to set the exact manner in which the characters/words appear on the screen. The impetus behind this project is because I wanted to just find a package that did this, but couldn't find one that matched my needs. So I make dis.
+The goal of this package is to provide react components which will 'type' text across the screen with various properties to set the exact manner in which the characters/words appear on the screen. The impetus behind this project is because I wanted to just find a package that did this, but couldn't find one that matched my needs. So I make dis.
 
 <br>
 
