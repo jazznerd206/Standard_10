@@ -7,6 +7,11 @@ class Standard_10 {
         this.chars = new LinkedList();
     }
     parseText(input) {
+        if (typeof input !== 'string') {
+            const message = 'This function only accepts alpha strings.';
+            console.error(message, input);
+            return;
+        }
         for (let char of input) {
             this.chars.push(char);
         }
@@ -15,7 +20,7 @@ class Standard_10 {
         let neighbors = this.map[character];
         if (neighbors.includes(next)) {
             let speedQuery = [character, true];
-            return speedQuery;    
+            return speedQuery;
         } else {
             let speedQuery = [character, false];
             return speedQuery;
