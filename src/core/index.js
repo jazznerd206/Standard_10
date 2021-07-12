@@ -15,8 +15,6 @@ class Standard_10 {
         cursorBlink: true,
         cursorState: 0,
         events: null,
-        initialState: null,
-        initialOptions: null,
         element: {
             fragment: null,
             node: document.createElement('span'),
@@ -29,13 +27,17 @@ class Standard_10 {
     options = {
         content: null,
         cursorChar: '_',
-        cursorBlink: 'standard',
+        cursorBlink: 500,
         typeSpeed: 'standard',
         deleteSpeed: 'standard',
-        reType: false,
-        classList: []
+        cursorPause: 'standard',
     }
 
+    /**
+     * CONSTRUCTOR
+     * @param {dom node (html element)} target 
+     * @param {user options (object)} options 
+     */
     constructor(target, options) {
         this.map = proximityMap;
         this.chars = new LinkedList();
@@ -51,14 +53,14 @@ class Standard_10 {
             this.state.element.fragment = lookieLoo;
         }
         if (options) {
-            this.options = {
-                ...this.options,
-                ...options
-            }
-            this.state.initialOptions = { ...options };
+            this.options = { ...this.options, ...options };
         }
         this.createField();
     }
+    /**
+     * find and initialize the dom field
+     * 
+     */
     createField() {
         if (!this.state.element.fragment) {
             this.showError('Lost the DOM element.');
@@ -68,29 +70,56 @@ class Standard_10 {
         let textArea = this.state.element.node;
         let cursor = this.state.element.cursor;
         textArea.innerHTML = '';
+        cursor.setAttribute('id', 'cursor');
         cursor.innerHTML = this.options.cursorChar;
         domField.append(textArea);
         domField.append(cursor);
     }
+    /**
+     * animation trigger
+     */
     startAnimation() {
         this.state.queue = this.getPrintTempo();
         this.state.active = true;
+        this.blink();
         this.run();
-        return this;
     }
+    /**
+     * cursor blink function
+     * @returns a blinking cursor for all of eternity
+     */
+    blink() {
+        console.log(`this.state.active`, this.state.active)
+        if (this.state.active === false) return;
+        var cursor = true;
+        var speed = this.options.cursorBlink;
+
+        setInterval(() => {
+            if(cursor) {
+                document.getElementById('cursor').style.opacity = 0;
+                cursor = false;
+            } else {
+                document.getElementById('cursor').style.opacity = 1;
+                cursor = true;
+            }
+        }, speed);
+    }
+    /**
+     * 
+     * @returns i dont even really know yet
+     */
     run() {
         if (!this.state.lastFrame) this.state.lastFrame = Date.now();
         let thisFrame = Date.now();
         let _DIFF = thisFrame - this.state.lastFrame;
-        this.state.events = window.requestAnimationFrame(this.run.bind(this));
-        const eClone = [...this.state.queue]
-        if (eClone.length === 0) {
+        if (this.state.queue.length === 0) {
+            this.state.active = false;
             this.kill();
             return;
         }
+        this.state.events = window.requestAnimationFrame(this.run.bind(this));
+        const eClone = [...this.state.queue];
         let c = eClone.shift();
-        console.log('chars: ' + JSON.stringify(c));
-        console.log(this.state.domNodes)
         let type = c[2];
         let delay = c[1] === true ? 50 : 100;
         if (_DIFF <= delay) return;
@@ -103,26 +132,29 @@ class Standard_10 {
                 newNode.classList.add('dyn-node');
                 newNode.setAttribute('id', `dyn-${this.state.events}`);
                 this.state.element.node.append(newNode);
-                this.state.domNodes.push(newNode);
+                this.state.domNodes.push({node: newNode, id: this.state.events});
                 break;
             case 'REMOVE_LAST':
                 const _D = this.state.domNodes;
-                // const _PREV = document.getElementById(`${_D[_D.length - 2].id}`);
-                // console.log(`_PREV`, _PREV);
-                const _E = document.getElementById(`${_D[_D.length - 1].id}`);
-                // console.log(`_E.value`, _E.innerHTML);
-                this.state.element.node.removeChild(_E);
-                console.log('curr: ' + `${JSON.stringify(_D[_D.length - 1])}`)
-                eClone.unshift(`${_D[_D.length - 1]}`)
-                this.state.domNodes.unshift(`${_D[_D.length - 1]}`)
-                // _D.splice(-1,1);
-                let temp = this.state.domNodes.pop()
-                temp = null;
+                const _E = document.getElementById(`dyn-${_D[_D.length - 1].id}`);
+                const _NODE = this.state.element.node.removeChild(_E);
+                if (!_NODE) {
+                    this.showError('node does not exist on page');
+                    return;
+                }
+                let temp = this.state.domNodes.pop();
+                break;
+            case 'KILL':
+                console.log('case KILL. switch kill.');
+                this.kill();
+                this.state.active = false;
+                this.blink();
                 break;
             default:
-                console.log('t: ' + this.state.strings);
-                // console.log(`this.state.domNodes`, this.state.domNodes)
-                console.log('default hit. switch kill.')
+                console.log('case DEFAULT. switch kill.')
+                this.kill();
+                this.state.active = false;
+                this.blink();
                 break;
         }
         this.state.queue = eClone;
@@ -133,15 +165,33 @@ class Standard_10 {
      * @returns this
      */
     kill() {
-        if(this.state.events) {
+        if (this.state.events) {
             window.cancelAnimationFrame.bind(this);
             this.state.events = null;
         }
+        this.state.active = false;
         return this;
     }
     /**
+     * used only in toString() method for now
+     * @param {integer} ms 
+     * @returns wait before animation frame execution
+     */
+    wait(ms) {
+        return new Promise(resolve => {
+            setTimeout(resolve, ms)}
+        );
+    }
+    /**
+     * func await inserts a pause into the event queue
+     */
+    await(ms) {
+        this.state.strings.push(ms.toString());
+    }
+    /**
      * takes content from state.strings
-     * requires funcs s10.add AND s10.addBackspace to be in state
+     * requires funcs s10.add to be in state
+     * returns linkedlist to this.chars for dom insertion command evaluation
      */
     parseText() {
         if (this.state.strings.length === 0) {
@@ -157,10 +207,53 @@ class Standard_10 {
         })
     }
     /**
+     * REQUIRES PROXMAP AND COMMANDS
+     * queries proximity map for closeness of keys
+     * return 3 member array:
+     * [0]: value to append to dom
+     * [1]: boolean representing proximity map value
+     * [2]: entry command
+     * @param {character} character 
+     * @param {character} next 
+     * @returns 
+     */
+    queryMap(character, next) {
+        let neighbors = this.map[character];
+        // console.log(`character`, character);
+        if (character === '_D') {
+            let speedQuery = [null, true, 'REMOVE_LAST'];
+            return speedQuery;
+        }
+        if (neighbors.includes(next)) {
+            let speedQuery = [character, true, 'ADD_AT_TAIL'];
+            return speedQuery;
+        } else {
+            let speedQuery = [character, false, 'ADD_AT_TAIL'];
+            return speedQuery;
+        }
+    }
+    /**
+     * REQURIES THIS.CHARS AND QUERYMAP()
+     * @returns array of dom insertion instruction
+     */
+    getPrintTempo() {
+        let node = this.chars.head;
+        while (node.next !== null) {
+            const value = node.val;
+            this.state.tempo.push(this.queryMap(node.val, node.next.val));
+            node = node.next;
+        }
+        let last = [ this.chars.tail.val, false , "ADD_AT_TAIL" ];
+        this.state.tempo.push(last);
+        let END = [ null, null, "KILL" ];
+        this.state.tempo.push(END);
+        return this.state.tempo;
+    }
+    /**
      * add full string to state.strings
      * @param {single string to add} string 
      */
-    add(string) {
+     add(string) {
         this.state.strings.push(string);
         return this;
     }
@@ -174,31 +267,9 @@ class Standard_10 {
         }
         return this;
     }
-    queryMap(character, next) {
-        let neighbors = this.map[character];
-        if (character === '_D') {
-            let speedQuery = [null, true, 'REMOVE_LAST'];
-            return speedQuery;
-        }
-        if (neighbors.includes(next)) {
-            let speedQuery = [character, true, 'ADD_AT_TAIL'];
-            return speedQuery;
-        } else {
-            let speedQuery = [character, false, 'ADD_AT_TAIL'];
-            return speedQuery;
-        }
-    }
-    getPrintTempo() {
-        let node = this.chars.head;
-        while (node.next !== null) {
-            const value = node.val;
-            this.state.tempo.push(this.queryMap(node.val, node.next.val));
-            node = node.next;
-        }
-        let last = [ this.chars.tail.val, false , "ADD_AT_TAIL" ];
-        this.state.tempo.push(last);
-        return this.state.tempo;
-    }
+    /**
+     * pretty self explanatory, if it works
+     */
     toString() {
         let tempo = this.getPrintTempo();
         let short = 50;
@@ -214,20 +285,10 @@ class Standard_10 {
             i++;
         }
     }
-    wait(ms) {
-        return new Promise(resolve => {
-            setTimeout(resolve, ms)}
-        );
-    }
-    printChar(index) {
-        return this.chars.get(index);
-    }
-    deleteChar() {
-        return this.chars.pop();
-    }
-    deleteCharAt(index) {
-        return this.chars.remove(index);
-    }
+    /**
+     * throws a new Error object
+     * @param {string} string // error message to pass to constructor
+     */
     showError(string) {
         this.state.error = string;
         throw new Error(this.state.error);
