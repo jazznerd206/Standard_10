@@ -81,28 +81,35 @@ class Standard_10 {
     startAnimation() {
         this.state.queue = this.getPrintTempo();
         this.state.active = true;
-        this.blink();
         this.run();
+        this.blink();
     }
     /**
      * cursor blink function
      * @returns a blinking cursor for all of eternity
      */
-    blink() {
-        console.log(`this.state.active`, this.state.active)
-        if (this.state.active === false) return;
-        var cursor = true;
-        var speed = this.options.cursorBlink;
-
-        setInterval(() => {
-            if(cursor) {
-                document.getElementById('cursor').style.opacity = 0;
+    blink(bool) {
+        console.log(`this.state.active from blink`, this.state.active)
+        let cursor = true;
+        let speed = this.options.cursorBlink;
+        let c = document.getElementById('cursor');
+        let blinker = () => {
+            if (cursor) {
+                c.style.opacity = 0;
                 cursor = false;
             } else {
-                document.getElementById('cursor').style.opacity = 1;
+                c.style.opacity = 1;
                 cursor = true;
             }
-        }, speed);
+        }
+        if (this.state.active === true) {
+            const _TIMER_ = setInterval(blinker, speed);
+            if (this.state.cursorState === 0) this.state.cursorState = _TIMER_
+        } else {
+            clearInterval(this.state.cursorState);
+        }
+        console.log(`interval`, this.state.cursorState)
+        if (this.state.active === false) clearInterval(this.state.cursorState);
     }
     /**
      * 
@@ -113,20 +120,20 @@ class Standard_10 {
         let thisFrame = Date.now();
         let _DIFF = thisFrame - this.state.lastFrame;
         if (this.state.queue.length === 0) {
+            console.log('length === 0')
             this.state.active = false;
-            this.kill();
+            this.blink();
             return;
         }
         this.state.events = window.requestAnimationFrame(this.run.bind(this));
         const eClone = [...this.state.queue];
         let c = eClone.shift();
-        let type = c[2];
-        let delay = c[1] === true ? 50 : 100;
-        if (_DIFF <= delay) return;
-        switch(type) {
+        let command = c.command;
+        let speed = c.speed;
+        if (_DIFF <= speed) return;
+        switch(command) {
             case 'ADD_AT_TAIL':
-                let char = c[0];
-                let speed = c[1];
+                let char = c.character;
                 const newNode = document.createElement('span');
                 newNode.textContent = char;
                 newNode.classList.add('dyn-node');
@@ -134,7 +141,7 @@ class Standard_10 {
                 this.state.element.node.append(newNode);
                 this.state.domNodes.push({node: newNode, id: this.state.events});
                 break;
-            case 'REMOVE_LAST':
+            case 'DELETE_LAST':
                 const _D = this.state.domNodes;
                 const _E = document.getElementById(`dyn-${_D[_D.length - 1].id}`);
                 const _NODE = this.state.element.node.removeChild(_E);
@@ -146,15 +153,13 @@ class Standard_10 {
                 break;
             case 'KILL':
                 console.log('case KILL. switch kill.');
-                this.kill();
                 this.state.active = false;
-                this.blink();
+                this.kill();
                 break;
             default:
                 console.log('case DEFAULT. switch kill.')
-                this.kill();
                 this.state.active = false;
-                this.blink();
+                this.kill();
                 break;
         }
         this.state.queue = eClone;
@@ -165,11 +170,12 @@ class Standard_10 {
      * @returns this
      */
     kill() {
-        if (this.state.events) {
+        if (this.state.events !== null) {
             window.cancelAnimationFrame.bind(this);
             this.state.events = null;
         }
         this.state.active = false;
+        this.blink();
         return this;
     }
     /**
@@ -217,35 +223,47 @@ class Standard_10 {
      * @param {character} next 
      * @returns 
      */
-    queryMap(character, next) {
-        let neighbors = this.map[character];
-        // console.log(`character`, character);
-        if (character === '_D') {
-            let speedQuery = [null, true, 'REMOVE_LAST'];
-            return speedQuery;
-        }
+    queryMap(character, next, last) {
+        // console.log(`character`, character)
+        let neighbors = character === '_D' ? [] : this.map[character];
+        let newObj = {};
+        newObj.character = character === '_D' ? null : character;
+        newObj.speed = 0;
         if (neighbors.includes(next)) {
-            let speedQuery = [character, true, 'ADD_AT_TAIL'];
-            return speedQuery;
+            newObj.speed = Math.floor(25 + (Math.random() * 50));
+        } else if (character === next) {
+            newObj.speed = last / 2;
         } else {
-            let speedQuery = [character, false, 'ADD_AT_TAIL'];
-            return speedQuery;
+            newObj.speed = Math.floor(75 + (Math.random() * 50));
         }
+        last = newObj.speed;
+        newObj.command = character === '_D' ? 'DELETE_LAST' : 'ADD_AT_TAIL';
+        return newObj
     }
     /**
      * REQURIES THIS.CHARS AND QUERYMAP()
      * @returns array of dom insertion instruction
      */
     getPrintTempo() {
+        let lastSpeed = null;
         let node = this.chars.head;
         while (node.next !== null) {
             const value = node.val;
-            this.state.tempo.push(this.queryMap(node.val, node.next.val));
+            this.state.tempo.push(this.queryMap(node.val, node.next.val, lastSpeed));
             node = node.next;
         }
-        let last = [ this.chars.tail.val, false , "ADD_AT_TAIL" ];
+        let last = {
+            character: this.chars.tail.val,
+            speed: Math.floor(25 + (Math.random() * 50)),
+            command: "ADD_AT_TAIL"
+    
+        };
         this.state.tempo.push(last);
-        let END = [ null, null, "KILL" ];
+        let END = {
+            character: null,
+            speed: null,
+            command: 'KILL'
+        }
         this.state.tempo.push(END);
         return this.state.tempo;
     }

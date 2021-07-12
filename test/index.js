@@ -4,6 +4,7 @@ const element = document.getElementById('standard_10');
 
 const options = {
     options: 'options',
+    cursorBlink: 250
 }
 
 const s10 = new Standard_10(element, options);
