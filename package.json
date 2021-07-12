@@ -2,14 +2,14 @@
   "name": "standard_10",
   "version": "1.0.0",
   "description": "Based on the Remington Standard #10 typewriter.",
-  "main": "src/core/index.js",
+  "main": "src/index.js",
   "scripts": {
     "pretty-check": "npx prettier --check",
     "pretty-write": "npx prettier --write",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "garbagio": "node --expose-gc --inspect src/example/index.js",
+    "test": "jest",
+    "garbagio": "node --expose-gc --inspect example/index.js",
     "dev": "light-server -s .",
-    "prod": "node src/example/index.js"
+    "prod": "node example/index.js"
   },
   "repository": {
     "type": "git",
@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/jazznerd206/Standard_10#readme",
   "devDependencies": {
+    "jest": "^27.0.6",
     "nodemon": "^2.0.12",
     "prettier": "2.3.2"
   }

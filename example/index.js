@@ -1,4 +1,4 @@
-import Standard_10 from '../src/core/index.js';
+import Standard_10 from '../src/index.js';
 
 const element = document.getElementById('standard_10');
 

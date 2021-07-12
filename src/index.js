@@ -1,5 +1,5 @@
-import { proximityMap } from '../../utils/proximityMap.js';
-import { LinkedList } from '../../utils/linkedList.js';
+import { proximityMap } from '../utils/proximityMap.js';
+import { LinkedList } from '../utils/linkedList.js';
 
 class Standard_10 {
 
