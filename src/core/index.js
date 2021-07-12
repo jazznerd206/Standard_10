@@ -3,6 +3,8 @@ import { LinkedList } from '../../utils/linkedList.js';
 
 class Standard_10 {
 
+    /** INITIAL STATE
+     */
     state = {
         strings: [],
         tempo: [],
@@ -12,7 +14,6 @@ class Standard_10 {
         chars: null,
         active: false,
         paused: false,
-        cursorBlink: true,
         cursorState: 0,
         events: null,
         element: {
@@ -24,17 +25,19 @@ class Standard_10 {
         error: null
     }
 
+    /** INITIAL OPTIONS
+     */
     options = {
         content: null,
-        cursorChar: '_',
+        cursorChar: '|',
         cursorBlink: 500,
         typeSpeed: 'standard',
         deleteSpeed: 'standard',
         cursorPause: 'standard',
+        styles: {}
     }
 
-    /**
-     * CONSTRUCTOR
+    /** CONSTRUCTOR
      * @param {dom node (html element)} target 
      * @param {user options (object)} options 
      */
@@ -56,10 +59,10 @@ class Standard_10 {
             this.options = { ...this.options, ...options };
         }
         this.createField();
+        this.applyStyles()
     }
-    /**
+    /** INIT FUNCTION
      * find and initialize the dom field
-     * 
      */
     createField() {
         if (!this.state.element.fragment) {
@@ -70,12 +73,55 @@ class Standard_10 {
         let textArea = this.state.element.node;
         let cursor = this.state.element.cursor;
         textArea.innerHTML = '';
+        domField.setAttribute('id', 'domField');
+        textArea.setAttribute('id', 'node');
         cursor.setAttribute('id', 'cursor');
         cursor.innerHTML = this.options.cursorChar;
         domField.append(textArea);
         domField.append(cursor);
     }
-    /**
+    /** INIT FUNCTION
+     * find and apply styles to dom fields
+     */
+    applyStyles() {
+        console.log(`this.options.styles`, this.options.styles);
+        if (this.options.styles === {}) return;
+        if (this.options.styles.domField) {
+            let s = '';
+            let styles = this.options.styles.domField;
+            let element = document.getElementById('domField');
+            for (let prop in styles) {
+                let key = prop.replace("_", "-");
+                s = s + `${key}: ${styles[prop]}; `;
+            }
+            console.log(`s`, s)
+            element.style = s;
+        }
+        if (this.options.styles.node) {
+            let s = '';
+            let styles = this.options.styles.node;
+            let element = document.getElementById('node');
+            for (let prop in styles) {
+                let key = prop.replace("_", "-");
+                s = s + `${key}: ${styles[prop]}; `;
+            }
+            console.log(`s`, s)
+            element.style = s;
+        }
+        if (this.options.styles.cursor) {
+            let s = '';
+            let styles = this.options.styles.cursor;
+            let element = document.getElementById('cursor');
+            for (let prop in styles) {
+                let key = prop.replace("_", "-");
+                s = s + `${key}: ${styles[prop]}; `;
+            }
+            console.log(`s`, s)
+            element.style = s;
+        }
+        return this;
+    }
+    /** INIT FUNCTION
      * animation trigger
      */
     startAnimation() {
@@ -84,12 +130,11 @@ class Standard_10 {
         this.run();
         this.blink();
     }
-    /**
-     * cursor blink function
+    /** ANIMATION FUNCTION
+     * set interval for blinking of cursor
      * @returns a blinking cursor for all of eternity
      */
     blink(bool) {
-        console.log(`this.state.active from blink`, this.state.active)
         let cursor = true;
         let speed = this.options.cursorBlink;
         let c = document.getElementById('cursor');
@@ -108,11 +153,10 @@ class Standard_10 {
         } else {
             clearInterval(this.state.cursorState);
         }
-        console.log(`interval`, this.state.cursorState)
         if (this.state.active === false) clearInterval(this.state.cursorState);
     }
-    /**
-     * 
+    /** ANIMATION FUNCTION
+     * main runner
      * @returns i dont even really know yet
      */
     run() {
@@ -120,7 +164,6 @@ class Standard_10 {
         let thisFrame = Date.now();
         let _DIFF = thisFrame - this.state.lastFrame;
         if (this.state.queue.length === 0) {
-            console.log('length === 0')
             this.state.active = false;
             this.blink();
             return;
@@ -152,12 +195,10 @@ class Standard_10 {
                 let temp = this.state.domNodes.pop();
                 break;
             case 'KILL':
-                console.log('case KILL. switch kill.');
                 this.state.active = false;
                 this.kill();
                 break;
             default:
-                console.log('case DEFAULT. switch kill.')
                 this.state.active = false;
                 this.kill();
                 break;
@@ -165,7 +206,7 @@ class Standard_10 {
         this.state.queue = eClone;
         this.state.lastFrame = thisFrame;
     }
-    /**
+    /** ANIMATIION HELPER
      * end event loop
      * @returns this
      */
@@ -178,7 +219,7 @@ class Standard_10 {
         this.blink();
         return this;
     }
-    /**
+    /** ANIMATION HELPER
      * used only in toString() method for now
      * @param {integer} ms 
      * @returns wait before animation frame execution
@@ -188,13 +229,7 @@ class Standard_10 {
             setTimeout(resolve, ms)}
         );
     }
-    /**
-     * func await inserts a pause into the event queue
-     */
-    await(ms) {
-        this.state.strings.push(ms.toString());
-    }
-    /**
+    /** DATA FUNCTION
      * takes content from state.strings
      * requires funcs s10.add to be in state
      * returns linkedlist to this.chars for dom insertion command evaluation
@@ -212,7 +247,7 @@ class Standard_10 {
             }
         })
     }
-    /**
+    /** DATA FUNCTION
      * REQUIRES PROXMAP AND COMMANDS
      * queries proximity map for closeness of keys
      * return 3 member array:
@@ -224,7 +259,6 @@ class Standard_10 {
      * @returns 
      */
     queryMap(character, next, last) {
-        // console.log(`character`, character)
         let neighbors = character === '_D' ? [] : this.map[character];
         let newObj = {};
         newObj.character = character === '_D' ? null : character;
@@ -240,7 +274,7 @@ class Standard_10 {
         newObj.command = character === '_D' ? 'DELETE_LAST' : 'ADD_AT_TAIL';
         return newObj
     }
-    /**
+    /** DATA FUNCTION
      * REQURIES THIS.CHARS AND QUERYMAP()
      * @returns array of dom insertion instruction
      */
@@ -267,7 +301,7 @@ class Standard_10 {
         this.state.tempo.push(END);
         return this.state.tempo;
     }
-    /**
+    /** STRING INSERTION
      * add full string to state.strings
      * @param {single string to add} string 
      */
@@ -275,7 +309,7 @@ class Standard_10 {
         this.state.strings.push(string);
         return this;
     }
-    /**
+    /** STRING INSERTION
      * add 'backspace' to state.strings
      * @param {num of chars to delete} num 
      */
@@ -286,6 +320,13 @@ class Standard_10 {
         return this;
     }
     /**
+    * STRING INSERTION
+    * func await inserts a pause into the event queue
+    */
+    addPause(ms) {
+        console.log('add pause here');
+    }
+    /** HELPER FUNCTION
      * pretty self explanatory, if it works
      */
     toString() {
@@ -303,7 +344,7 @@ class Standard_10 {
             i++;
         }
     }
-    /**
+    /** HELPER FUNCTION
      * throws a new Error object
      * @param {string} string // error message to pass to constructor
      */
