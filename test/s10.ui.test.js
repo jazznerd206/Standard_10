@@ -1,5 +1,11 @@
-const s10 = require('../src/index.js');
+/**
+ * @jest-environment jsdom
+ */
 
-test('has initial state and options objects', () => {
-    
+import Standard_10 from '../src/index.js';
+
+describe('Standard_10', () => {
+    it('should initialize with state and options...', () => {
+        return;
+    })
 })

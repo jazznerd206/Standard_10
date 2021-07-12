@@ -6,7 +6,7 @@
   "scripts": {
     "pretty-check": "npx prettier --check",
     "pretty-write": "npx prettier --write",
-    "test": "jest",
+    "test": "NODE_ENV=test && jest --verbose false",
     "garbagio": "node --expose-gc --inspect example/index.js",
     "dev": "light-server -s .",
     "prod": "node example/index.js"
@@ -22,6 +22,11 @@
   },
   "homepage": "https://github.com/jazznerd206/Standard_10#readme",
   "devDependencies": {
+    "@babel/cli": "^7.14.5",
+    "@babel/core": "^7.14.6",
+    "@babel/preset-env": "^7.14.7",
+    "babel-jest": "^27.0.6",
+    "core-js": "^3.15.2",
     "jest": "^27.0.6",
     "nodemon": "^2.0.12",
     "prettier": "2.3.2"
