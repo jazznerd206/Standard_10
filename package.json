@@ -7,9 +7,9 @@
     "pretty-check": "npx prettier --check",
     "pretty-write": "npx prettier --write",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "garbagio": "node --expose-gc --inspect src/test/index.js",
+    "garbagio": "node --expose-gc --inspect src/example/index.js",
     "dev": "light-server -s .",
-    "prod": "node src/test/index.js"
+    "prod": "node src/example/index.js"
   },
   "repository": {
     "type": "git",
