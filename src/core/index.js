@@ -79,16 +79,18 @@ class Standard_10 {
         return this;
     }
     run() {
-        if (this.state.queue.length === 0) {
+        if (!this.state.lastFrame) this.state.lastFrame = Date.now();
+        let thisFrame = Date.now();
+        let _DIFF = thisFrame - this.state.lastFrame;
+        this.state.events = window.requestAnimationFrame(this.run.bind(this));
+        const eClone = [...this.state.queue]
+        if (eClone.length === 0) {
             this.kill();
             return;
         }
-        if (!this.state.lastFrame) this.state.lastFrame = Date.now();
-        let thisFrame = Date.now();
-        let _DIFF = thisFrame - this.state.lastFrame;  
-        this.state.events = window.requestAnimationFrame(this.run.bind(this));
-        const eClone = [...this.state.queue]
         let c = eClone.shift();
+        console.log('chars: ' + JSON.stringify(c));
+        console.log(this.state.domNodes)
         let type = c[2];
         let delay = c[1] === true ? 50 : 100;
         if (_DIFF <= delay) return;
@@ -100,25 +102,27 @@ class Standard_10 {
                 newNode.textContent = char;
                 newNode.classList.add('dyn-node');
                 newNode.setAttribute('id', `dyn-${this.state.events}`);
-                if (newNode) {
-                    this.state.element.node.append(newNode);
-                    this.state.domNodes.push(newNode);
-                }
+                this.state.element.node.append(newNode);
+                this.state.domNodes.push(newNode);
                 break;
             case 'REMOVE_LAST':
-                const d = this.state.domNodes;
-                // this.state.queue.unshift([char, speed, type]);
-                const _NODE = d[d.length - 1];
-                const _E = document.getElementById(`${_NODE.id}`);
-                console.log(`_E`, _E);
-                if (_E.parentNode) {
-                    console.log(`_E.parentNode`, _E.parentNode);
-                    _E.parentNode.removeChild(_E);
-                }
-                d.splice(-1,1);
+                const _D = this.state.domNodes;
+                // const _PREV = document.getElementById(`${_D[_D.length - 2].id}`);
+                // console.log(`_PREV`, _PREV);
+                const _E = document.getElementById(`${_D[_D.length - 1].id}`);
+                // console.log(`_E.value`, _E.innerHTML);
+                this.state.element.node.removeChild(_E);
+                console.log('curr: ' + `${JSON.stringify(_D[_D.length - 1])}`)
+                eClone.unshift(`${_D[_D.length - 1]}`)
+                this.state.domNodes.unshift(`${_D[_D.length - 1]}`)
+                // _D.splice(-1,1);
+                let temp = this.state.domNodes.pop()
+                temp = null;
                 break;
             default:
-                this.kill();
+                console.log('t: ' + this.state.strings);
+                // console.log(`this.state.domNodes`, this.state.domNodes)
+                console.log('default hit. switch kill.')
                 break;
         }
         this.state.queue = eClone;
@@ -191,7 +195,7 @@ class Standard_10 {
             this.state.tempo.push(this.queryMap(node.val, node.next.val));
             node = node.next;
         }
-        let last = [ this.chars.tail.val, false ];
+        let last = [ this.chars.tail.val, false , "ADD_AT_TAIL" ];
         this.state.tempo.push(last);
         return this.state.tempo;
     }
