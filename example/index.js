@@ -1,6 +1,10 @@
 import Standard_10 from '../src/index.js';
 
-const element = document.getElementById('standard_10');
+let el = document.createElement('div');
+el.classList.add('standard_10');
+const parentElement = document.getElementById('root');
+parentElement.appendChild(el);
+const element = document.getElementsByClassName('standard_10');
 
 const options = {
     options: 'options',
@@ -29,7 +33,7 @@ const options = {
         }
     }
 }
-
+// console.log(`element`, element);
 const s10 = new Standard_10(element, options);
 s10.add('this is a string');
 s10.addPause(500);

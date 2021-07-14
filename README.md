@@ -22,12 +22,43 @@ Standard_10 provides a JavaScript module which will 'type' text across the scree
 
 > SIMPLE USAGE
 
-1. `mkdir Standard_10 && cd Standard_10 && touch index.mjs`
+1. `mkdir Standard_10 && cd Standard_10 && touch index.mjs && touch index.html`
+    - Standard_10
+        - index.mjs
+        - index.html
+        - styles.css (optional)
 2. `npm init`
+    - /Standard_10
+        - /_ contents _/
+        - package.json
 3. add "type":"module" to package.json
-    - modify the npm scripts to launch as a server instead of static files i.e. http-server or light-server
-4. `npm install standard_10`
-5. Ready to type!!! Open your favorite text editor (its ok if its Vim... kind of) and past the code below into it.
+4. modify the npm scripts to launch as a server (i.e. http-server or light-server)
+    - `"start":"light-server -s ."`
+5. `npm install standard_10`
+6. Ready to type!!! Open your favorite text editor (its ok if its Vim... kind of) and past the code below into it.
+
+> INDEX.HTML
+
+```
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Standard_10</title>
+</head>
+<body>
+    <div class="title" id="root">
+        Standard_10
+    </div>
+    <script type="module" src="index.js"></script>
+</body>
+</html>
+```
+
+> INDEX.MJS
 
 ```
 import Standard_10 from 'standard-10';
@@ -51,6 +82,25 @@ s10.parseText();
 s10.startAnimation();
 ```
 
+> STYLES.CSS (optional)
+
+```
+body {
+    padding: 0;
+    margin: 0;
+}
+.title {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-flow: column wrap;
+    justify-content: center;
+    align-items: center;
+    background-color: black;
+    color: white;
+}
+```
+
 > REQUIRED FUNCTIONS
 
 | Type            | Signature                                    | Param restrictions                                                                                                                                      |
@@ -67,7 +117,7 @@ s10.startAnimation();
 | s10.addBackspace(_N_) | _N_ must be of type number, 0 < _N_ < s10.chars.length(), equal to number of characters to delete |
 | s10.addPause(_N_)     | _N_ must be of type number, 0 < _N_ < Integer.MAX_VALUE, equal to pause length in milliseconds    |
 
-> OPTIONS PARAMETERS
+> OPTIONS OBJECT
 
 | Parameter   | Description                                                                                                                                                                                                                                                                                                                                                                                                               |
 | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

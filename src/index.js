@@ -47,7 +47,7 @@ class Standard_10 {
             this.showError('Must supply a target node');
             return;
         }
-        const lookieLoo = document.querySelector(`#${target.id}`);
+        const lookieLoo = document.querySelector(`.${target[0].classList.value}`);
         if (!lookieLoo) {
             this.showError('Target element not found on page.')
             return;
@@ -83,7 +83,6 @@ class Standard_10 {
      * find and apply styles to dom fields
      */
     applyStyles() {
-        console.log(`this.options.styles`, this.options.styles);
         if (this.options.styles === {}) return;
         if (this.options.styles.domField) {
             let s = '';
@@ -93,7 +92,6 @@ class Standard_10 {
                 let key = prop.replace("_", "-");
                 s = s + `${key}: ${styles[prop]}; `;
             }
-            console.log(`s`, s)
             element.style = s;
         }
         if (this.options.styles.node) {
@@ -104,7 +102,6 @@ class Standard_10 {
                 let key = prop.replace("_", "-");
                 s = s + `${key}: ${styles[prop]}; `;
             }
-            console.log(`s`, s)
             element.style = s;
         }
         if (this.options.styles.cursor) {
@@ -115,7 +112,6 @@ class Standard_10 {
                 let key = prop.replace("_", "-");
                 s = s + `${key}: ${styles[prop]}; `;
             }
-            console.log(`s`, s)
             element.style = s;
         }
         return this;
@@ -202,15 +198,12 @@ class Standard_10 {
                 let temp = this.state.domNodes.pop();
                 break;
             case 'WAIT':
-                console.log('wait case');
-                console.log('q: ' + this.state.queue.length);
                 break;
             case 'KILL':
                 this.state.active = false;
                 this.kill();
                 break;
             default:
-                console.log('default')
                 this.state.active = false;
                 this.kill();
                 break;
@@ -346,8 +339,8 @@ class Standard_10 {
     * func await inserts a pause into the event queue
     */
     addPause(ms) {
-        console.log('add pause here');
         this.state.strings.push(ms);
+        return this;
     }
     /** HELPER FUNCTION
      * pretty self explanatory, if it works
