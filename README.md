@@ -64,17 +64,30 @@ Standard_10 provides a JavaScript module which will 'type' text across the scree
 import Standard_10 from 'standard-10';
 
 // DOM field initialization (skip if already exists)
+let root = document.createElement('div');
+root.setAttribute('id', 'root');
+document.body.append(root);
 let el = document.createElement('div');
-el.setAttribute('id', 'standard_10');
+el.classList.add('standard_10');
+const parentElement = document.getElementById('root');
+parentElement.appendChild(el);
+const element = document.getElementsByClassName('standard_10');
+
+// add initial styles (if applicable)
+// let link = document.createElement('link');
+// link.type = 'text/css';
+// link.rel = 'stylesheet';
+// link.href = './styles.css';
+// document.head.append(link);
 
 // target element (pass to instance constructor)
-let target = document.getElementByID('standard_10');
+const element = document.getElementsByClassName('standard_10');
 
 // options (pass to instance constructor)
 let options = {};
 
 // instance constructor
-let s10 = new Standard_10(target, options);
+let s10 = new Standard_10(element[0], options);
 
 // methods
 s10.add(/* input goes here */)

@@ -47,7 +47,7 @@ class Standard_10 {
             this.showError('Must supply a target node');
             return;
         }
-        const lookieLoo = document.querySelector(`.${target[0].classList.value}`);
+        const lookieLoo = document.querySelector(`.${target.classList.value}`);
         if (!lookieLoo) {
             this.showError('Target element not found on page.')
             return;
