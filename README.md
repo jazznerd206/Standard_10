@@ -51,6 +51,22 @@ s10.parseText();
 s10.startAnimation();
 ```
 
+> REQUIRED FUNCTIONS
+
+| Type            | Signature                                    | Param restrictions                                                                                                                                      |
+| --------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| constructor     | const s10 = new Standard_10(target, options) | target (HTML element) -> must be an existing DOM element with a valid id parameter. options (Object) -> see initial vs. advanced options objects below. |
+| process data    | s10.parseText()                              | no parameters. this function must be called AFTER all the endemic functions, directly before startAnimation().                                          |
+| start animation | s10.startAnimation()                         | no parameters. this must be called DIRECTLY AFTER parseText(), activates animation loop. More endemic function may be called after this.                |
+
+> ENDEMIC FUNCTIONS
+
+| Signature             | Param restrictions                                                                                |
+| --------------------- | ------------------------------------------------------------------------------------------------- |
+| s10.add(_S_)          | _S_ must be of type string, 0 < _S_.length < 250, all lowercase (for now, update coming v1.3)     |
+| s10.addBackspace(_N_) | _N_ must be of type number, 0 < _N_ < s10.chars.length(), equal to number of characters to delete |
+| s10.addPause(_N_)     | _N_ must be of type number, 0 < _N_ < Integer.MAX_VALUE, equal to pause length in milliseconds    |
+
 > OPTIONS PARAMETERS
 
 | Parameter   | Description                                                                                                                                                                                                                                                                                                                                                                                                               |
@@ -111,7 +127,7 @@ s10.startAnimation();
 
 ## Roadmap
 
-See the [open issues](https://github.com/jazznerd206/Standar_10/issues) for a list of proposed features (and known issues).
+See the [open issues](https://github.com/jazznerd206/Standard_10/issues) for a list of proposed features (and known issues).
 
 <!-- CONTRIBUTING -->
 
@@ -129,10 +145,11 @@ Contributions are what make the open source community such an amazing place to b
 
 ## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under the UnLicense. See `LICENSE` for more information.
 
 <!-- CONTACT -->
 
 ## Contact
 
-Project Link: [https://github.com/jazznerd206/Standard_10](https://github.com/jazznerd206/Standard_10)
+-   linkedIn: https://www.linkedin.com/in/andrew-miller-113a1a195/
+-   Gertherb: [https://github.com/jazznerd206/Standard_10](https://github.com/jazznerd206/Standard_10)
