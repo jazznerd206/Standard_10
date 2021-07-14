@@ -17,13 +17,7 @@ This package is built with JavaScript and nothing else. There are zero direct de
 <br>
 
 Standard_10 provides a JavaScript module which will 'type' text across the screen with various properties to set the exact manner in which the characters/words appear. Read further for instance and usage instructions ->
-
-<p align="center">
-    <video width="320" height="240" controls>
-        <source src="firstScreen.mov" type="video/mp4">
-    </video>
-</p>
-
+<img src="firstScreen.gif" alt="example text" style="max-height: 400px;"/>
 <br>
 
 > SIMPLE USAGE
@@ -34,8 +28,6 @@ Standard_10 provides a JavaScript module which will 'type' text across the scree
     - modify the npm scripts to launch as a server instead of static files i.e. http-server or light-server
 4. `npm install standard_10`
 5. Ready to type!!! Open your favorite text editor (its ok if its Vim... kind of) and past the code below into it.
-
-> SIMPLE USAGE
 
 ```
 import Standard_10 from 'standard-10';
