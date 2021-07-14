@@ -33,7 +33,6 @@ class Standard_10 {
         cursorBlink: 500,
         typeSpeed: 'standard',
         deleteSpeed: 'standard',
-        cursorPause: 'standard',
         styles: {}
     }
 
@@ -131,29 +130,36 @@ class Standard_10 {
         this.blink();
     }
     /** ANIMATION FUNCTION
+     * var cursor === true => cursor is at 100% opacity
      * set interval for blinking of cursor
      * @returns a blinking cursor for all of eternity
      */
-    blink(bool) {
-        let cursor = true;
+    blink() {
+        let cursor = this.state.active === true ? false : true;
         let speed = this.options.cursorBlink;
         let c = document.getElementById('cursor');
         let blinker = () => {
             if (cursor) {
                 c.style.opacity = 0;
+                c.style.height = '.1em';
                 cursor = false;
             } else {
                 c.style.opacity = 1;
+                c.style.height = '1em';
                 cursor = true;
             }
         }
         if (this.state.active === true) {
             const _TIMER_ = setInterval(blinker, speed);
-            if (this.state.cursorState === 0) this.state.cursorState = _TIMER_
-        } else {
-            clearInterval(this.state.cursorState);
+            if (this.state.cursorState === 0) this.state.cursorState = _TIMER_;
         }
-        if (this.state.active === false) clearInterval(this.state.cursorState);
+        if (this.state.active === false) {
+            setTimeout(() => {
+                clearInterval(this.state.cursorState);
+                cursor = true;
+                return;
+            }, this.options.cursorTimeout || 1500);
+        }
     }
     /** ANIMATION FUNCTION
      * main runner
@@ -181,6 +187,7 @@ class Standard_10 {
                 newNode.textContent = char;
                 newNode.classList.add('dyn-node');
                 newNode.setAttribute('id', `dyn-${this.state.events}`);
+                newNode.classList.add('node-new');
                 this.state.element.node.append(newNode);
                 this.state.domNodes.push({node: newNode, id: this.state.events});
                 break;
@@ -194,11 +201,16 @@ class Standard_10 {
                 }
                 let temp = this.state.domNodes.pop();
                 break;
+            case 'WAIT':
+                console.log('wait case');
+                console.log('q: ' + this.state.queue.length);
+                break;
             case 'KILL':
                 this.state.active = false;
                 this.kill();
                 break;
             default:
+                console.log('default')
                 this.state.active = false;
                 this.kill();
                 break;
@@ -240,6 +252,7 @@ class Standard_10 {
         }
         this.state.strings.forEach(string => {
             if (string === 'backspace') this.chars.push('_D');
+            else if (typeof string === 'number') this.chars.push(string);
             else {
                 for (let char of string) {
                     this.chars.push(char);
@@ -263,7 +276,7 @@ class Standard_10 {
         let newObj = {};
         newObj.character = character === '_D' ? null : character;
         newObj.speed = 0;
-        if (neighbors.includes(next)) {
+        if (character === next || neighbors.includes(next)) {
             newObj.speed = Math.floor(25 + (Math.random() * 50));
         } else if (character === next) {
             newObj.speed = last / 2;
@@ -283,7 +296,16 @@ class Standard_10 {
         let node = this.chars.head;
         while (node.next !== null) {
             const value = node.val;
-            this.state.tempo.push(this.queryMap(node.val, node.next.val, lastSpeed));
+            if (typeof node.val === 'number') {
+                let p = {
+                    character: null,
+                    speed: node.val,
+                    command: 'WAIT'
+                }
+                this.state.tempo.push(p);
+            } else {
+                this.state.tempo.push(this.queryMap(node.val, node.next.val, lastSpeed));
+            }
             node = node.next;
         }
         let last = {
@@ -325,6 +347,7 @@ class Standard_10 {
     */
     addPause(ms) {
         console.log('add pause here');
+        this.state.strings.push(ms);
     }
     /** HELPER FUNCTION
      * pretty self explanatory, if it works
